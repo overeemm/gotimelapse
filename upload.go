@@ -22,13 +22,7 @@ func (x *nopReadCloser) Close() error {
 	return nil
 }
 
-func main() {
-	var db *dropbox.Dropbox
-
-	db = dropbox.NewDropbox()
-	
-	db.SetAppInfo(clientid, clientsecret)
-	db.SetAccessToken(token)
+func shoot(db *dropbox.Dropbox) {
 
         cmd := exec.Command("raspistill", "-n", "-o", "-")
         out, err := cmd.StdoutPipe()
@@ -52,11 +46,26 @@ func main() {
 	now := time.Now().Format("2006-01-02 150405")
 	len := int64(len(data))
 	bytes := NopReadCloser(bytes.NewReader(data))
-	fmt.Println(len)
+	
 	_, err = db.FilesPut(bytes, len, fmt.Sprintf("%s.jpg", now) , true, "");
 	if(err != nil) {
 		fmt.Println("db.FilesPut(...)")
-		fmt.Println(err);
+		fmt.Println(err)
 	}
-	
+
+}
+
+func main() {
+
+	var db *dropbox.Dropbox
+
+	db = dropbox.NewDropbox()
+
+	db.SetAppInfo(clientid, clientsecret)
+	db.SetAccessToken(token)
+
+	//for i := 0; i < 2500; i++ {
+		shoot(db)
+	//	time.Sleep(5 * time.Minute)
+	//}
 }
